@@ -1,22 +1,18 @@
-from fastapi import FastAPI, UploadFile, File, Form
-from fastapi.responses import FileResponse
+from fastapi import APIRouter, UploadFile, File, Form
 from app.pipeline.stego_pipeline import encode_message, decode_message
 import shutil
 
-app = FastAPI(
-    title="DNA-Stego API",
-    version="1.0"
-)
+router = APIRouter()
 
-# -------------------------
-# ENCRYPT ENDPOINT
-# -------------------------
 
-@app.post("/api/encrypt")
+@router.post("/encrypt")
 async def encrypt_message(
     message: str = Form(...),
     fasta_file: UploadFile = File(...)
 ):
+    """
+    Encode a message into a FASTA file
+    """
 
     temp_path = f"storage/fasta_files/{fasta_file.filename}"
 
@@ -31,25 +27,14 @@ async def encrypt_message(
     }
 
 
-# -------------------------
-# DOWNLOAD GENERATED FASTA
-# -------------------------
-
-@app.get("/api/download")
-async def download_file(path: str):
-
-    return FileResponse(path, filename="encoded.fasta")
-
-
-# -------------------------
-# DECRYPT ENDPOINT
-# -------------------------
-
-@app.post("/api/decrypt")
-async def decrypt_message(
+@router.post("/decrypt")
+async def decrypt_message_api(
     key: str = Form(...),
     stego_file: UploadFile = File(...)
 ):
+    """
+    Decode message from stego FASTA
+    """
 
     temp_path = f"storage/fasta_files/{stego_file.filename}"
 
