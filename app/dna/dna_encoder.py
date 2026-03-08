@@ -1,12 +1,32 @@
+def binary_to_dna(binary: str) -> str:
+    """
+    Convert binary string to DNA sequence using custom mapping.
+
+    Mapping:
+    00 -> G
+    01 -> C
+    10 -> A
+    11 -> T
+    """
+
+    dna_map = {
+        "00": "G",
+        "01": "C",
+        "10": "A",
+        "11": "T"
+    }
+
+    dna_sequence = ""
+
+    for i in range(0, len(binary), 2):
+        pair = binary[i:i+2]
+        dna_sequence += dna_map[pair]
+
+    return dna_sequence
+
 def bytes_to_binary(data: bytes) -> str:
     """
-    Convert byte data into a binary string.
-
-    Args:
-        data (bytes): encrypted byte data
-
-    Returns:
-        str: binary representation
+    Convert byte data into binary string
     """
 
     binary_string = ""
@@ -16,11 +36,35 @@ def bytes_to_binary(data: bytes) -> str:
 
     return binary_string
 
+
+def binary_to_dna(binary: str) -> str:
+    """
+    Convert binary string to DNA sequence
+    """
+
+    dna_map = {
+        "00": "G",
+        "01": "C",
+        "10": "A",
+        "11": "T"
+    }
+
+    dna_sequence = ""
+
+    for i in range(0, len(binary), 2):
+        pair = binary[i:i+2]
+        dna_sequence += dna_map[pair]
+
+    return dna_sequence
+
+
 if __name__ == "__main__":
 
-    sample_data = b"HELLO"
+    sample = b"HELLO"
 
-    binary = bytes_to_binary(sample_data)
+    binary = bytes_to_binary(sample)
+    dna = binary_to_dna(binary)
 
-    print("Input Bytes:", sample_data)
+    print("Input Bytes:", sample)
     print("Binary:", binary)
+    print("DNA Sequence:", dna)
