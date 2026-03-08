@@ -27,9 +27,36 @@ def generate_stego_header(sequence: str) -> str:
     return header
 
 
+def clean_fasta_content(lines):
+    """
+    Fix invalid FASTA formatting where sequence lines start with '>'
+    """
+
+    cleaned_lines = []
+
+    for line in lines:
+
+        line = line.strip()
+
+        if line.startswith(">"):
+
+            # Check if it looks like a sequence accidentally starting with >
+            possible_sequence = line[1:]
+
+            if all(base in "ACGTNRYWSKM" for base in possible_sequence):
+                cleaned_lines.append(possible_sequence)
+            else:
+                cleaned_lines.append(line)
+
+        else:
+            cleaned_lines.append(line)
+
+    return cleaned_lines
+
+
 def inject_into_fasta(original_fasta: str, encoded_sequence: str) -> str:
     """
-    Inject encoded DNA sequence into an existing FASTA file
+    Inject encoded DNA sequence into existing FASTA file
     """
 
     output_file = original_fasta.replace(".fasta", "_stego.fasta")
@@ -38,17 +65,23 @@ def inject_into_fasta(original_fasta: str, encoded_sequence: str) -> str:
     wrapped_sequence = wrap_sequence(encoded_sequence)
 
     with open(original_fasta, "r") as f:
-        original_content = f.read()
+        lines = f.readlines()
+
+    cleaned_lines = clean_fasta_content(lines)
 
     with open(output_file, "w") as f:
-        f.write(original_content.strip() + "\n\n")
+
+        for line in cleaned_lines:
+            f.write(line + "\n")
+
+        f.write("\n")
         f.write(header + "\n")
         f.write(wrapped_sequence)
 
     return output_file
 
 
-# Test code
+# Test
 if __name__ == "__main__":
 
     sample_dna = "CGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGAT"
@@ -57,4 +90,4 @@ if __name__ == "__main__":
 
     new_file = inject_into_fasta(original_file, sample_dna)
 
-    print("New FASTA file created:", new_file)
+    print("Stego FASTA created:", new_file)

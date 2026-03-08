@@ -39,12 +39,12 @@ def restore_text(text: str, block_size: int = 4) -> str:
 
     return result
 
-if __name__ == "__main__":
-    original = "HELLOWORLD"
+# if __name__ == "__main__":
+#     original = "HELLOWORLD"
 
-    rearranged = rearrange_text(original)
-    restored = restore_text(rearranged)
+#     rearranged = rearrange_text(original)
+#     restored = restore_text(rearranged)
 
-    print("Original :", original)
-    print("Rearranged :", rearranged)
-    print("Restored :", restored)
+#     print("Original :", original)
+#     print("Rearranged :", rearranged)
+#     print("Restored :", restored)

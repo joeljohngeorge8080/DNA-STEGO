@@ -14,9 +14,9 @@ def text_to_utf8_bytes(text: str) -> bytes:
     except Exception as e:
         raise ValueError(f"UTF-8 encoding failed: {e}")
     
-if __name__ == "__main__":
-    text = "HELLO"
-    result = text_to_utf8_bytes(text)
+# if __name__ == "__main__":
+#     text = "HELLO"
+#     result = text_to_utf8_bytes(text)
 
-    print("Original Text:", text)
-    print("UTF-8 Bytes:", result)
+#     print("Original Text:", text)
+#     print("UTF-8 Bytes:", result)
