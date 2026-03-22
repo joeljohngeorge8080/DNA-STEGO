@@ -1,68 +1,116 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-}
-
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
+@layer base {
+  * {
+    box-sizing: border-box;
   }
-  a:hover {
-    color: #747bff;
+
+  html, body, #root {
+    height: 100%;
+    width: 100%;
   }
-  button {
-    background-color: #f9f9f9;
+
+  body {
+    background-color: #030712;
+    color: #e2e8f0;
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #0d1117;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #1f2937;
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #374151;
+  }
+}
+
+@layer components {
+  /* Glassmorphic card */
+  .glass-panel {
+    @apply bg-cyber-panel/80 backdrop-blur-md border border-cyber-border rounded-xl;
+  }
+
+  /* Glowing accent border */
+  .glow-border {
+    border: 1px solid rgba(0, 255, 195, 0.25);
+    box-shadow: 0 0 20px rgba(0, 255, 195, 0.08), inset 0 0 20px rgba(0, 255, 195, 0.02);
+  }
+
+  /* Neon text */
+  .text-glow-accent {
+    text-shadow: 0 0 10px rgba(0, 255, 195, 0.5);
+  }
+
+  /* Terminal-style input */
+  .terminal-input {
+    @apply bg-cyber-bg border border-cyber-border rounded-lg px-4 py-3 text-cyber-text font-mono text-sm
+      focus:outline-none focus:border-cyber-accent/60 focus:ring-1 focus:ring-cyber-accent/20
+      placeholder-cyber-muted/50 transition-all duration-200 w-full;
+  }
+
+  /* DNA base colors */
+  .dna-a { color: #34d399; }
+  .dna-t { color: #f87171; }
+  .dna-g { color: #60a5fa; }
+  .dna-c { color: #facc15; }
+
+  /* Hex grid background pattern */
+  .hex-bg {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cpath d='M30 5 L55 20 L55 50 L30 65 L5 50 L5 20 Z' fill='none' stroke='%231f2937' stroke-width='1'/%3E%3C/svg%3E");
+    background-size: 60px 60px;
+  }
+}
+
+/* Scan line animation overlay */
+.scan-overlay::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(0, 255, 195, 0.03) 50%,
+    transparent 100%
+  );
+  background-size: 100% 4px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Active nav item glow */
+.nav-active {
+  background: linear-gradient(135deg, rgba(0, 255, 195, 0.12) 0%, rgba(0, 255, 195, 0.04) 100%);
+  border-left: 2px solid #00ffc3;
+}
+
+/* Gradient border trick */
+.gradient-border {
+  position: relative;
+  border-radius: 12px;
+}
+.gradient-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(0,255,195,0.3), rgba(59,130,246,0.3), transparent);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: destination-out;
+  mask-composite: exclude;
+  pointer-events: none;
 }
