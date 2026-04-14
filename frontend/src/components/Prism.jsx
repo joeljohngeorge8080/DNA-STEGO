@@ -4,12 +4,12 @@ const Prism = ({
   enabledWaves = ['middle', 'bottom', 'top'],
   lineCount = [8, 8, 8],
   lineDistance = [87.5, 87.5, 87.5],
-  bendRadius = 15,
-  bendStrength = -8,
+  bendRadius = 8,
+  bendStrength = -15,
   interactive = true,
   parallax = true,
   animationSpeed = 1.2,
-  mouseDamping = 0.08,
+  mouseDamping = 0.1,
   mixBlendMode = 'screen'
 }) => {
 

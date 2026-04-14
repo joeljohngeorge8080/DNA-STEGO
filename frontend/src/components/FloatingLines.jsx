@@ -390,7 +390,8 @@ export default function FloatingLines({
 
     if (ro) ro.observe(container);
 
-    const handlePointerMove = event => {
+    const handlePointerMove = (event) => {
+      if (!interactive) return;
       const rect = renderer.domElement.getBoundingClientRect();
       const x = event.clientX - rect.left;
       const y = event.clientY - rect.top;
@@ -410,10 +411,16 @@ export default function FloatingLines({
 
     const handlePointerLeave = () => {
       targetInfluenceRef.current = 0.0;
+      targetMouseRef.current.set(-1000, -1000);
     };
 
+    const handleMouseMove = (event) => handlePointerMove(event);
+    const handleMouseLeave = () => handlePointerLeave();
+
     if (interactive) {
-      renderer.domElement.addEventListener('pointermove', handlePointerMove);
+      renderer.domElement.addEventListener('mousemove', handleMouseMove, { passive: true });
+      renderer.domElement.addEventListener('pointermove', handlePointerMove, { passive: true });
+      renderer.domElement.addEventListener('mouseleave', handleMouseLeave);
       renderer.domElement.addEventListener('pointerleave', handlePointerLeave);
     }
 
@@ -449,7 +456,9 @@ export default function FloatingLines({
       if (ro) ro.disconnect();
 
       if (interactive) {
+        renderer.domElement.removeEventListener('mousemove', handleMouseMove);
         renderer.domElement.removeEventListener('pointermove', handlePointerMove);
+        renderer.domElement.removeEventListener('mouseleave', handleMouseLeave);
         renderer.domElement.removeEventListener('pointerleave', handlePointerLeave);
       }
 
