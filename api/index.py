@@ -1,7 +1,5 @@
-"""
-Vercel Serverless Function Wrapper for DNA-Stego FastAPI
-This file allows the FastAPI app to run on Vercel's serverless platform.
-"""
+# api/index.py
+from app.main import app
 
 import sys
 import os

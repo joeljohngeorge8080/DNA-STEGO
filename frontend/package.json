@@ -1,5 +1,5 @@
 {
-  "name": "templates",
+  "name": "dna-stego",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -10,8 +10,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@aws-amplify/ui-react": "^6.15.3",
-    "aws-amplify": "^6.16.3",
     "clsx": "^2.1.1",
     "framer-motion": "^12.38.0",
     "lucide-react": "^0.577.0",

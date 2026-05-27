@@ -2,4 +2,4 @@ venv/
 __pycache__/
 *.pyc
 .env
-storage/fasta_files/
+storage/fasta_files/*_stego.fasta
