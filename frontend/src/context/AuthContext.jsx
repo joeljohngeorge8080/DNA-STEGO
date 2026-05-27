@@ -2,7 +2,8 @@ import { createContext, useContext, useState, useCallback, useEffect } from 'rea
 
 const AuthContext = createContext(null)
 
-const API_BASE = import.meta.env.VITE_API_BASE ?? 'http://localhost:8000'
+// Use relative URLs in production (Vercel will proxy), absolute in dev
+const API_BASE = import.meta.env.PROD ? '' : (import.meta.env.VITE_API_BASE ?? 'http://localhost:8000')
 
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(null)
