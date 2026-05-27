@@ -68,9 +68,9 @@ Create/update `.env.local` in your project root:
 
 ```bash
 # Supabase
-VITE_SUPABASE_URL=https://[project-ref].supabase.co
-VITE_SUPABASE_ANON_KEY=<your-anon-key>
-DATABASE_URL=postgresql://postgres.[project-ref]:[password]@aws-0-[region].pooler.supabase.com:6543/postgres
+VITE_SUPABASE_URL=https://hhhxlhugrsqwlnpbghyt.supabase.co
+VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhoaHhsaHVncnNxd2xucGJnaHl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4NDE4NzMsImV4cCI6MjA5NTQxNzg3M30.BNwTy4I_x6j3SMFNppP0M1DBg3IiCht1IyUSIZsCNnY
+DATABASE_URL=postgresql://postgres:Onepiece%402005q@db.hhhxlhugrsqwlnpbghyt.supabase.co:5432/postgres
 
 # Security
 VITE_API_URL=https://your-domain.com
