@@ -1,0 +1,43 @@
+# Multi-stage Dockerfile for DNA-Stego Frontend - Production
+
+# Build stage
+FROM node:20-alpine as builder
+
+WORKDIR /app
+
+# Copy package files
+COPY package.json package-lock.json ./
+
+# Install dependencies with npm ci (cleaner installs)
+RUN npm ci
+
+# Copy source code
+COPY . .
+
+# Build application
+RUN npm run build
+
+# Runtime stage
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install serve to run the application
+RUN npm install -g serve
+
+# Copy built files from builder
+COPY --from=builder /app/dist ./dist
+
+# Create a health check script
+RUN echo '#!/bin/sh\nwget --quiet --tries=1 --spider http://localhost:3000 || exit 1' > /healthcheck.sh && \
+    chmod +x /healthcheck.sh
+
+# Expose port
+EXPOSE 3000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+    CMD /healthcheck.sh
+
+# Run application on port 3000 (can't use 5173 in production)
+CMD ["serve", "-s", "dist", "-l", "3000"]

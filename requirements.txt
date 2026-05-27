@@ -1,5 +1,7 @@
 fastapi
 uvicorn
 cryptography
-python-multipart 
+python-multipart
 jinja2
+PyJWT
+requests

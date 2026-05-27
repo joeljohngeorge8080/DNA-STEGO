@@ -1,10 +1,10 @@
 def text_to_utf8_bytes(text: str) -> bytes:
     """
     Convert input text into UTF-8 encoded bytes.
-    
+
     Args:
         text (str): Input string from user
-        
+
     Returns:
         bytes: UTF-8 encoded byte representation
     """
@@ -13,5 +13,6 @@ def text_to_utf8_bytes(text: str) -> bytes:
         return utf8_bytes
     except Exception as e:
         raise ValueError(f"UTF-8 encoding failed: {e}")
-    
+
+
 # npm install ogl

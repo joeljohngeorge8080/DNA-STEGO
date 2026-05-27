@@ -13,12 +13,13 @@ def rearrange_text(text: str, block_size: int = 4) -> str:
     result = ""
 
     for i in range(0, len(text), block_size):
-        block = text[i:i+block_size]
+        block = text[i : i + block_size]
         result += block[::-1]  # reverse block
 
     return result
 
-#for reverse algorithm 
+
+# for reverse algorithm
 def restore_text(text: str, block_size: int = 4) -> str:
     """
     Restore original text from rearranged text.
@@ -34,10 +35,11 @@ def restore_text(text: str, block_size: int = 4) -> str:
     result = ""
 
     for i in range(0, len(text), block_size):
-        block = text[i:i+block_size]
+        block = text[i : i + block_size]
         result += block[::-1]
 
     return result
+
 
 # if __name__ == "__main__":
 #     original = "HELLOWORLD"

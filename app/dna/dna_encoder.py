@@ -9,20 +9,16 @@ def binary_to_dna(binary: str) -> str:
     11 -> T
     """
 
-    dna_map = {
-        "00": "G",
-        "01": "C",
-        "10": "A",
-        "11": "T"
-    }
+    dna_map = {"00": "G", "01": "C", "10": "A", "11": "T"}
 
     dna_sequence = ""
 
     for i in range(0, len(binary), 2):
-        pair = binary[i:i+2]
+        pair = binary[i : i + 2]
         dna_sequence += dna_map[pair]
 
     return dna_sequence
+
 
 def bytes_to_binary(data: bytes) -> str:
     """
@@ -42,17 +38,12 @@ def binary_to_dna(binary: str) -> str:
     Convert binary string to DNA sequence
     """
 
-    dna_map = {
-        "00": "G",
-        "01": "C",
-        "10": "A",
-        "11": "T"
-    }
+    dna_map = {"00": "G", "01": "C", "10": "A", "11": "T"}
 
     dna_sequence = ""
 
     for i in range(0, len(binary), 2):
-        pair = binary[i:i+2]
+        pair = binary[i : i + 2]
         dna_sequence += dna_map[pair]
 
     return dna_sequence

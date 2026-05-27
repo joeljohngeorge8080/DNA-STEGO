@@ -7,7 +7,7 @@ import Button from '../components/ui/Button.jsx'
 import Input from '../components/ui/Input.jsx'
 
 export default function LoginPage() {
-    const { login, continueAsGuest } = useAuth()
+    const { login, continueAsGuest, loading: authLoading } = useAuth()
     const navigate = useNavigate()
     const [form, setForm] = useState({ email: '', password: '' })
     const [loading, setLoading] = useState(false)
@@ -34,6 +34,14 @@ export default function LoginPage() {
     function handleGuest() {
         continueAsGuest()
         navigate('/dashboard')
+    }
+
+    if (authLoading) {
+        return (
+            <div className="min-h-screen bg-cyber-dark flex items-center justify-center">
+                <div className="text-cyber-text">Loading...</div>
+            </div>
+        )
     }
 
     return (
@@ -82,81 +90,6 @@ export default function LoginPage() {
                 No account?{' '}
                 <Link to="/signup" className="text-cyber-accent hover:underline">
                     Sign up
-                </Link>
-            </p>
-        </AuthLayout>
-    )
-}
-
-export function SignupPage() {
-    const { signup } = useAuth()
-    const navigate = useNavigate()
-    const [form, setForm] = useState({ username: '', email: '', password: '' })
-    const [loading, setLoading] = useState(false)
-    const [error, setError] = useState(null)
-
-    function handleChange(e) {
-        setForm((f) => ({ ...f, [e.target.name]: e.target.value }))
-    }
-
-    async function handleSubmit(e) {
-        e.preventDefault()
-        setLoading(true)
-        setError(null)
-        try {
-            await signup(form)
-            navigate('/dashboard')
-        } catch (err) {
-            setError(err.message)
-        } finally {
-            setLoading(false)
-        }
-    }
-
-    return (
-        <AuthLayout title="Create Account" subtitle="Join DNA-Stego — secure by design">
-            <form onSubmit={handleSubmit} className="space-y-4">
-                <Input
-                    label="Username"
-                    name="username"
-                    type="text"
-                    placeholder="johndoe"
-                    value={form.username}
-                    onChange={handleChange}
-                    required
-                />
-                <Input
-                    label="Email"
-                    name="email"
-                    type="email"
-                    placeholder="you@example.com"
-                    value={form.email}
-                    onChange={handleChange}
-                    required
-                />
-                <Input
-                    label="Password"
-                    name="password"
-                    type="password"
-                    placeholder="Create a strong password"
-                    value={form.password}
-                    onChange={handleChange}
-                    required
-                />
-                {error && (
-                    <p className="text-xs text-cyber-red bg-cyber-red/10 border border-cyber-red/20 rounded-lg px-3 py-2">
-                        {error}
-                    </p>
-                )}
-                <Button type="submit" fullWidth loading={loading}>
-                    Create Account
-                </Button>
-            </form>
-
-            <p className="text-center text-xs text-cyber-muted mt-4">
-                Already have an account?{' '}
-                <Link to="/login" className="text-cyber-accent hover:underline">
-                    Sign in
                 </Link>
             </p>
         </AuthLayout>

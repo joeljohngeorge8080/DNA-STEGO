@@ -6,10 +6,7 @@ router = APIRouter()
 
 
 @router.post("/encrypt")
-async def encrypt_message(
-    message: str = Form(...),
-    fasta_file: UploadFile = File(...)
-):
+async def encrypt_message(message: str = Form(...), fasta_file: UploadFile = File(...)):
     """
     Encode a message into a FASTA file
     """
@@ -21,17 +18,11 @@ async def encrypt_message(
 
     stego_file, key = encode_message(message, temp_path)
 
-    return {
-        "stego_file": stego_file,
-        "key": key.decode()
-    }
+    return {"stego_file": stego_file, "key": key.decode()}
 
 
 @router.post("/decrypt")
-async def decrypt_message_api(
-    key: str = Form(...),
-    stego_file: UploadFile = File(...)
-):
+async def decrypt_message_api(key: str = Form(...), stego_file: UploadFile = File(...)):
     """
     Decode message from stego FASTA
     """
@@ -43,6 +34,4 @@ async def decrypt_message_api(
 
     message = decode_message(temp_path, key.encode())
 
-    return {
-        "message": message
-    }
+    return {"message": message}

@@ -39,7 +39,8 @@ def decrypt_data(encrypted_data: bytes, key: bytes) -> bytes:
     decrypted_data = cipher.decrypt(encrypted_data)
     return decrypted_data
 
-#TESTING 
+
+# TESTING
 # if __name__ == "__main__":
 
 #     text = "HELLO WORLD"

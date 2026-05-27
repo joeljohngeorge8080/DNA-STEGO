@@ -1,6 +1,7 @@
 from app.crypto.encryption import decrypt_data
 from app.preprocessing.rearrange import restore_text
 
+
 def extract_stego_sequence(filepath: str) -> str:
     """
     E
@@ -45,12 +46,7 @@ def dna_to_binary(dna_sequence: str) -> str:
     T -> 11
     """
 
-    dna_map = {
-        "G": "00",
-        "C": "01",
-        "A": "10",
-        "T": "11"
-    }
+    dna_map = {"G": "00", "C": "01", "A": "10", "T": "11"}
 
     binary = ""
 
@@ -58,6 +54,8 @@ def dna_to_binary(dna_sequence: str) -> str:
         binary += dna_map[base]
 
     return binary
+
+
 def binary_to_bytes(binary: str) -> bytes:
     """
     Convert binary string into bytes.
@@ -67,10 +65,11 @@ def binary_to_bytes(binary: str) -> bytes:
     byte_array = bytearray()
 
     for i in range(0, len(binary), 8):
-        byte = binary[i:i+8]
+        byte = binary[i : i + 8]
         byte_array.append(int(byte, 2))
 
     return bytes(byte_array)
+
 
 def decrypt_bytes(encrypted_bytes: bytes, key: bytes) -> bytes:
     """
@@ -80,12 +79,16 @@ def decrypt_bytes(encrypted_bytes: bytes, key: bytes) -> bytes:
     decrypted_data = decrypt_data(encrypted_bytes, key)
 
     return decrypted_data
+
+
 def bytes_to_text(data: bytes) -> str:
     """
     Convert UTF-8 byte data back to text.
     """
 
     return data.decode("utf-8")
+
+
 def restore_original_text(text: str) -> str:
     """
     Reverse the rearrangement algorithm
@@ -101,7 +104,7 @@ if __name__ == "__main__":
     from app.crypto.encryption import decrypt_data
 
     # Load key used during encryption
-    key = generate_key()   # replace later with stored key
+    key = generate_key()  # replace later with stored key
 
     file_path = "storage/fasta_files/example_stego.fasta"
 

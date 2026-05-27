@@ -1,8 +1,7 @@
 /**
- * api.js — Backend API Service Layer
+ * api.js — Backend API Service Layer v2
  *
  * All endpoints are proxied in dev via vite.config.js → /api → http://localhost:8000
- * In production, set VITE_API_BASE to the backend URL.
  */
 
 const BASE = import.meta.env.VITE_API_BASE ?? ''
@@ -12,22 +11,28 @@ async function handleResponse(res) {
         const text = await res.text()
         throw new Error(text || `HTTP ${res.status}`)
     }
-    // Download endpoints return blobs
     const contentType = res.headers.get('content-type') ?? ''
     if (contentType.includes('application/json')) return res.json()
     return res.blob()
 }
 
 /**
- * Encrypt a message into a FASTA file.
- * @param {string} message      — plaintext message
- * @param {File}   fastaFile    — original .fasta file
- * @returns {{ stego_file: string, key: string }}
+ * Encrypt a message into a stego FASTA file.
+ *
+ * @param {string}   message        — plaintext message
+ * @param {File|null} fastaFile     — cover FASTA file, or null to use server default
+ * @param {boolean}  useEncryption  — true → AES protected; false → key-free
+ * @returns {{ stego_file: string, key: string|null, encrypted: boolean }}
  */
-export async function encryptMessage(message, fastaFile) {
+export async function encryptMessage(message, fastaFile, useEncryption = true) {
     const body = new FormData()
     body.append('message', message)
-    body.append('fasta_file', fastaFile)
+    body.append('use_encryption', useEncryption ? 'true' : 'false')
+
+    if (fastaFile) {
+        body.append('fasta_file', fastaFile)
+    }
+    // If no file is provided, the backend falls back to default.fasta
 
     const res = await fetch(`${BASE}/api/encrypt`, { method: 'POST', body })
     return handleResponse(res)
@@ -46,14 +51,15 @@ export async function downloadStegoFile(filePath) {
 
 /**
  * Decrypt a stego FASTA file.
- * @param {File}   stegoFile — the stego .fasta file
- * @param {string} key       — encryption key from encrypt step
+ *
+ * @param {File}     stegoFile — the stego .fasta file
+ * @param {string}   key       — AES key, or "" if the file was encoded key-free
  * @returns {{ message: string }}
  */
-export async function decryptMessage(stegoFile, key) {
+export async function decryptMessage(stegoFile, key = '') {
     const body = new FormData()
     body.append('stego_file', stegoFile)
-    body.append('key', key)
+    body.append('key', key)          // empty string is fine — backend handles it
 
     const res = await fetch(`${BASE}/api/decrypt`, { method: 'POST', body })
     return handleResponse(res)

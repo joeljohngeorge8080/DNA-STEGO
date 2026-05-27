@@ -1,0 +1,107 @@
+# .dockerignore - Optimize Docker builds by excluding unnecessary files
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Version Control
+.github
+.gitlab-ci.yml
+
+# Documentation
+*.md
+docs/
+
+# Testing
+tests/
+.pytest_cache/
+.coverage
+htmlcov/
+*.egg-info/
+
+# Environment
+.env
+.env.*
+*.pem
+*.key
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+dist/
+build/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# CI/CD
+.travis.yml
+.circleci/
+Jenkinsfile
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# OS
+Thumbs.db
+.DS_Store
+*.log
+
+# Temporary
+temp/
+tmp/
+.temp/
+
+# Node modules (if copying from host)
+frontend/node_modules/
+frontend/dist/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Build artifacts
+build/
+dist/
+out/
+
+# IDE settings
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace

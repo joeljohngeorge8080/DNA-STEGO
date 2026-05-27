@@ -1,0 +1,274 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║           🔍 HOW TO CHECK IF EACH ADDON/SERVICE IS WORKING 🔍               ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+QUESTION: How can I check if each of the addons are working?
+
+ANSWER: You have 4 easy ways to verify your services are operational.
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🚀 METHOD 1: AUTOMATED HEALTH CHECK (RECOMMENDED - 30 seconds)
+═══════════════════════════════════════════════════════════════════════════════
+
+Simply run:
+
+    ./health-check.sh
+
+This automatically checks ALL services and shows:
+    ✅/❌ Docker services
+    ✅/❌ Ports available
+    ✅/❌ API connectivity
+    ✅/❌ Frontend response
+    ✅/❌ Database
+    ✅/❌ Storage
+    ✅/❌ Logs
+    ✅/❌ Configuration
+    ✅/❌ Overall status
+
+RESULT: You get a comprehensive report showing what's working and what's not.
+
+═══════════════════════════════════════════════════════════════════════════════
+
+📋 METHOD 2: MANUAL QUICK CHECKS (5 minutes)
+═══════════════════════════════════════════════════════════════════════════════
+
+Test each addon individually with simple commands:
+
+┌─ BACKEND API SERVICE (Port 8000) ─────────────────────────────────────┐
+│                                                                        │
+│  Check if running:                                                    │
+│    curl http://localhost:8000                                         │
+│                                                                        │
+│  Check health:                                                        │
+│    curl http://localhost:8000/health                                  │
+│                                                                        │
+│  View logs:                                                           │
+│    docker-compose logs backend                                        │
+│                                                                        │
+│  EXPECTED: Responds with some data (✅ GOOD)                          │
+│  NOT RESPONDING: Check logs or restart (❌ PROBLEM)                  │
+│                                                                        │
+└────────────────────────────────────────────────────────────────────────┘
+
+┌─ FRONTEND SERVICE (Port 5173) ─────────────────────────────────────────┐
+│                                                                        │
+│  Check if running:                                                    │
+│    curl http://localhost:5173                                         │
+│                                                                        │
+│  View logs:                                                           │
+│    docker-compose logs frontend                                       │
+│                                                                        │
+│  Open in browser:                                                     │
+│    http://localhost:5173                                              │
+│                                                                        │
+│  EXPECTED: Shows UI, no errors (✅ GOOD)                              │
+│  NOT RESPONDING: Check logs or restart (❌ PROBLEM)                  │
+│                                                                        │
+└────────────────────────────────────────────────────────────────────────┘
+
+┌─ DOCKER CONTAINERS ─────────────────────────────────────────────────────┐
+│                                                                        │
+│  See all containers:                                                  │
+│    docker-compose ps                                                  │
+│                                                                        │
+│  EXPECTED: Both dna-stego-backend and dna-stego-frontend showing UP   │
+│  STATUS: "Up X seconds" or "Up X minutes" (✅ GOOD)                   │
+│  STATUS: "Exited" or blank (❌ PROBLEM - not running)               │
+│                                                                        │
+└────────────────────────────────────────────────────────────────────────┘
+
+┌─ PORTS ─────────────────────────────────────────────────────────────────┐
+│                                                                        │
+│  Check if ports are in use:                                           │
+│    lsof -i :8000      # Backend port                                   │
+│    lsof -i :5173      # Frontend port                                  │
+│                                                                        │
+│  EXPECTED: Shows process using port (✅ GOOD)                         │
+│  EMPTY: Port not listening (❌ PROBLEM)                               │
+│                                                                        │
+└────────────────────────────────────────────────────────────────────────┘
+
+┌─ DATABASE ──────────────────────────────────────────────────────────────┐
+│                                                                        │
+│  Check if database exists:                                            │
+│    ls -lh dna_stego.db                                                │
+│                                                                        │
+│  EXPECTED: Shows file size (✅ GOOD)                                  │
+│  NOT FOUND: Will be created on first startup (⚠️ WARNING)             │
+│                                                                        │
+└────────────────────────────────────────────────────────────────────────┘
+
+┌─ STORAGE ───────────────────────────────────────────────────────────────┐
+│                                                                        │
+│  Check if storage exists:                                             │
+│    ls -R storage/                                                     │
+│                                                                        │
+│  EXPECTED: Shows directories and files (✅ GOOD)                      │
+│  EMPTY: Storage ready for use (✅ GOOD)                               │
+│                                                                        │
+└────────────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🔍 METHOD 3: BROWSER TESTING (Visual Verification)
+═══════════════════════════════════════════════════════════════════════════════
+
+Open these URLs in your web browser:
+
+1. FRONTEND APPLICATION
+   URL: http://localhost:5173
+   
+   WHAT TO CHECK:
+   ✅ Page loads without error
+   ✅ UI is visible and interactive
+   ✅ No red error messages
+   ✅ JavaScript console has no red errors (F12 → Console)
+
+2. API DOCUMENTATION (Swagger)
+   URL: http://localhost:8000/docs
+   
+   WHAT TO CHECK:
+   ✅ Swagger UI loads
+   ✅ Shows list of API endpoints
+   ✅ Can expand endpoints to see details
+   ✅ Can try making test API calls
+
+3. ALTERNATIVE API DOCS (ReDoc)
+   URL: http://localhost:8000/redoc
+   
+   WHAT TO CHECK:
+   ✅ ReDoc documentation loads
+   ✅ Shows complete API reference
+   ✅ Better formatted than Swagger
+
+═══════════════════════════════════════════════════════════════════════════════
+
+⚡ METHOD 4: ONE-LINE QUICK CHECKS
+═══════════════════════════════════════════════════════════════════════════════
+
+Run these one-liners to quickly verify each addon:
+
+BACKEND:
+  curl -s http://localhost:8000 && echo "✅ Backend OK" || echo "❌ Backend DOWN"
+
+FRONTEND:
+  curl -s http://localhost:5173 > /dev/null && echo "✅ Frontend OK" || echo "❌ Frontend DOWN"
+
+DOCKER:
+  docker-compose ps | grep -q "Up" && echo "✅ Containers OK" || echo "❌ Containers DOWN"
+
+DATABASE:
+  [ -f dna_stego.db ] && echo "✅ Database OK" || echo "❌ Database MISSING"
+
+STORAGE:
+  [ -d storage/fasta_files ] && echo "✅ Storage OK" || echo "❌ Storage MISSING"
+
+ALL AT ONCE:
+  ./health-check.sh
+
+═══════════════════════════════════════════════════════════════════════════════
+
+📊 COMPLETE VERIFICATION CHECKLIST
+═══════════════════════════════════════════════════════════════════════════════
+
+Use this checklist to ensure everything is working:
+
+SERVICES:
+  [ ] Backend container is running (docker ps | grep backend)
+  [ ] Frontend container is running (docker ps | grep frontend)
+  [ ] Backend responds to curl (curl http://localhost:8000)
+  [ ] Frontend responds to curl (curl http://localhost:5173)
+
+PORTS:
+  [ ] Port 8000 is listening (lsof -i :8000)
+  [ ] Port 5173 is listening (lsof -i :5173)
+
+API:
+  [ ] API health endpoint works (curl http://localhost:8000/health)
+  [ ] Swagger docs load (http://localhost:8000/docs)
+  [ ] ReDoc docs load (http://localhost:8000/redoc)
+
+FILES:
+  [ ] Database exists (ls dna_stego.db)
+  [ ] Storage directory exists (ls -d storage/fasta_files)
+  [ ] Logs directory exists (ls -d logs)
+
+LOGS:
+  [ ] No error messages (docker-compose logs | grep -i error)
+  [ ] No exception messages (docker-compose logs | grep -i exception)
+
+RESULT:
+  All checkboxes ticked? ✅ ALL SYSTEMS OPERATIONAL!
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🔧 STARTING YOUR SERVICES
+═══════════════════════════════════════════════════════════════════════════════
+
+If services aren't running, start them first:
+
+OPTION 1 (Recommended):
+  docker-compose up --build
+
+OPTION 2 (Background):
+  docker-compose up -d
+
+OPTION 3 (Using Make):
+  make dev
+
+Then wait 30-60 seconds for services to start before checking.
+
+═══════════════════════════════════════════════════════════════════════════════
+
+⚠️  TROUBLESHOOTING
+═══════════════════════════════════════════════════════════════════════════════
+
+"Port already in use" error:
+  lsof -i :8000           # Find process
+  kill -9 <PID>           # Kill it
+  docker-compose restart  # Restart
+
+"Services won't start":
+  docker-compose logs     # Check error messages
+  docker-compose down     # Stop
+  docker-compose up --build  # Rebuild
+
+"Database errors":
+  rm dna_stego.db         # Delete old DB
+  docker-compose restart  # Let it recreate
+
+═══════════════════════════════════════════════════════════════════════════════
+
+📚 MORE DETAILED INFORMATION
+═══════════════════════════════════════════════════════════════════════════════
+
+For more comprehensive guides, see:
+
+1. VERIFICATION_README.txt - Overview of all verification methods
+2. HEALTH_CHECK_GUIDE.md - Complete health check procedures
+3. QUICK_VERIFICATION.md - Quick reference for all commands
+4. DEPLOYMENT_REPORT.md - Technical deployment details
+
+═══════════════════════════════════════════════════════════════════════════════
+
+✨ SUMMARY: THREE WAYS TO CHECK
+═══════════════════════════════════════════════════════════════════════════════
+
+FASTEST (30 seconds):
+  ./health-check.sh
+
+SIMPLEST (10 seconds):
+  curl http://localhost:8000
+  curl http://localhost:5173
+
+VISUAL (2 minutes):
+  http://localhost:5173          # Frontend
+  http://localhost:8000/docs     # API
+
+═══════════════════════════════════════════════════════════════════════════════
+
+Generated: April 14, 2026
+Ready to verify your DNA-Stego addons!
+
+═══════════════════════════════════════════════════════════════════════════════
