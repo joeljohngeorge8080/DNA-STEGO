@@ -74,7 +74,7 @@ export default function LandingPage() {
                     </div>
                     <div className="flex items-center gap-2">
                         <Button variant="ghost" size="sm" onClick={() => navigate('/login')}>Sign In</Button>
-                        <Button variant="secondary" size="sm" onClick={() => navigate('/signup')}>Create Account</Button>
+                        <Button variant="secondary" size="sm" onClick={() => navigate('/login')}>Get Started</Button>
                     </div>
                 </nav>
 
@@ -110,7 +110,7 @@ export default function LandingPage() {
                     </motion.p>
 
                     <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-3">
-                        <Button size="lg" onClick={() => navigate('/signup')}>
+                        <Button size="lg" onClick={() => navigate('/login')}>
                             Get Started
                             <ArrowRight size={16} />
                         </Button>

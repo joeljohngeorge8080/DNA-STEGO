@@ -46,7 +46,12 @@ export async function encryptMessage(message, fastaFile, useEncryption = true) {
 export async function downloadStegoFile(filePath) {
     const url = `${BASE}/api/download?path=${encodeURIComponent(filePath)}`
     const res = await fetch(url)
-    return handleResponse(res)
+    if (!res.ok) {
+        const text = await res.text()
+        throw new Error(text || `HTTP ${res.status}`)
+    }
+    // Always return blob for file downloads
+    return res.blob()
 }
 
 /**

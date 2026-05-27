@@ -5,3 +5,6 @@ python-multipart
 jinja2
 PyJWT
 requests
+authlib
+httpx
+itsdangerous
