@@ -1,9 +1,7 @@
 import { createContext, useContext, useState, useCallback, useEffect } from 'react'
 
 const AuthContext = createContext(null)
-
-// Use relative URLs in production (Vercel will proxy), absolute in dev
-const API_BASE = import.meta.env.PROD ? '' : (import.meta.env.VITE_API_BASE ?? 'http://localhost:8000')
+const API_BASE = import.meta.env.VITE_API_BASE ?? 'http://localhost:8000'
 
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(null)
@@ -13,29 +11,25 @@ export function AuthProvider({ children }) {
 
     const isAuthenticated = user !== null
 
-    // On mount: check for token in URL (callback from Google) or in localStorage
     useEffect(() => {
         const params = new URLSearchParams(window.location.search)
-        const token = params.get('token')
+        const urlToken = params.get('token')
 
-        if (token) {
-            // Coming back from Google OAuth
-            localStorage.setItem('jwt_token', token)
-            // Clean URL
+        if (urlToken) {
+            localStorage.setItem('jwt_token', urlToken)
             window.history.replaceState({}, '', window.location.pathname)
-            fetchUserFromToken(token)
+            fetchUser(urlToken)
         } else {
-            // Check saved token
             const saved = localStorage.getItem('jwt_token')
             if (saved) {
-                fetchUserFromToken(saved)
+                fetchUser(saved)
             } else {
                 setLoading(false)
             }
         }
     }, [])
 
-    async function fetchUserFromToken(token) {
+    async function fetchUser(token) {
         try {
             const res = await fetch(`${API_BASE}/auth/me`, {
                 headers: { Authorization: `Bearer ${token}` },
@@ -48,11 +42,10 @@ export function AuthProvider({ children }) {
                     picture: data.picture,
                     sub: data.sub,
                 })
-                setIsGuest(false)
             } else {
                 localStorage.removeItem('jwt_token')
             }
-        } catch (e) {
+        } catch {
             localStorage.removeItem('jwt_token')
         } finally {
             setLoading(false)
@@ -60,18 +53,7 @@ export function AuthProvider({ children }) {
     }
 
     const loginWithGoogle = useCallback(() => {
-        // Redirect browser to backend Google login route
         window.location.href = `${API_BASE}/auth/google/login`
-    }, [])
-
-    const loginWithGoogleToken = useCallback(() => {
-        // Called after OAuth callback to fetch and set user info
-        const token = localStorage.getItem('jwt_token')
-        if (token) {
-            fetchUserFromToken(token)
-        } else {
-            setLoading(false)
-        }
     }, [])
 
     const continueAsGuest = useCallback(() => {
@@ -101,7 +83,6 @@ export function AuthProvider({ children }) {
             savedKey,
             loading,
             loginWithGoogle,
-            loginWithGoogleToken,
             logout,
             continueAsGuest,
             saveKey,

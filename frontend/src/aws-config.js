@@ -1,7 +1,6 @@
-import { Amplify } from 'aws-amplify'
+// aws-config.js — AWS Amplify removed, using Google OAuth instead
+export default {}
 
-// AWS Cognito is optional - only configure if credentials are provided
-const hasCognitoConfig = import.meta.env.VITE_USER_POOL_ID && import.meta.env.VITE_USER_POOL_CLIENT_ID
 
 const awsConfig = {
   Auth: {
