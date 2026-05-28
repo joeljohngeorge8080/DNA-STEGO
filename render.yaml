@@ -5,7 +5,6 @@ services:
   - type: web
     name: dna-stego-backend
     runtime: python
-    pythonVersion: 3.11
     plan: free
     
     # Root directory of the project
