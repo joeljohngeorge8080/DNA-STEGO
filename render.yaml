@@ -1,0 +1,36 @@
+# Render.com deployment configuration for DNA-Stego backend
+# This file configures automatic deployments from Git
+
+services:
+  - type: web
+    name: dna-stego-backend
+    runtime: python
+    pythonVersion: 3.11
+    plan: free
+    
+    # Root directory of the project
+    rootDir: .
+    
+    # Build command — install dependencies
+    buildCommand: pip install -r requirements.txt
+    
+    # Start command — run FastAPI with Uvicorn
+    # Important: Use app.main:app since the FastAPI app is in app/main.py
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    
+    # Environment variables (set these in Render dashboard)
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: SECRET_KEY
+        # Generate a secure key and set in dashboard
+      - key: JWT_SECRET
+        # Use same as SECRET_KEY or generate another
+      - key: GOOGLE_CLIENT_ID
+        # Set in Render dashboard
+      - key: GOOGLE_CLIENT_SECRET
+        # Set in Render dashboard
+      - key: FRONTEND_URL
+        # Will be your Vercel frontend URL, e.g., https://your-app.vercel.app
+      - key: ALLOWED_ORIGINS
+        # Will be your Vercel frontend URL, e.g., https://your-app.vercel.app

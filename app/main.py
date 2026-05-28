@@ -17,21 +17,22 @@ logger = logging.getLogger(__name__)
 # ===== ENVIRONMENT CONFIGURATION =====
 ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
 DEBUG = ENVIRONMENT == "development"
-ALLOWED_ORIGINS = os.getenv(
-    "ALLOWED_ORIGINS",
-    "http://localhost:3000,http://localhost:5173"
-).split(",")
+
+# CORS: Allow frontend URLs and localhost for development
+DEFAULT_ORIGINS = "http://localhost:3000,http://localhost:5173"
+ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", DEFAULT_ORIGINS).split(",")
+
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "")
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET", "")
-SESSION_SECRET = os.getenv("SECRET_KEY", "dev-secret-change-me")
+SESSION_SECRET = os.getenv("SECRET_KEY", os.getenv("JWT_SECRET", "dev-secret-change-me"))
 
 # ===== FASTAPI SETUP =====
 app = FastAPI(
     title="DNA-Stego API",
     version="2.0",
-    docs_url="/docs" if DEBUG else None,
-    openapi_url="/openapi.json" if DEBUG else None,
+    docs_url="/docs",  # Always enable docs for debugging
+    openapi_url="/openapi.json",
     debug=DEBUG,
 )
 
