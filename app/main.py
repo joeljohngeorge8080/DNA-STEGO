@@ -63,6 +63,13 @@ else:
     logger.warning("Google OAuth not configured - GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET not set")
 
 
+# ===== ROOT ENDPOINT =====
+@app.get("/")
+async def root():
+    """Root endpoint - API is running."""
+    return {"service": "DNA-Stego API", "status": "running", "version": "2.0"}
+
+
 # ===== HEALTH CHECK =====
 @app.get("/health")
 async def health_check():
