@@ -56,6 +56,13 @@ export function AuthProvider({ children }) {
         window.location.href = `${API_BASE}/auth/google/login`
     }, [])
 
+    const loginWithGoogleToken = useCallback(() => {
+        const token = localStorage.getItem('jwt_token')
+        if (token) {
+            fetchUser(token)
+        }
+    }, [])
+
     const continueAsGuest = useCallback(() => {
         setUser(null)
         setIsGuest(true)
@@ -83,6 +90,7 @@ export function AuthProvider({ children }) {
             savedKey,
             loading,
             loginWithGoogle,
+            loginWithGoogleToken,
             logout,
             continueAsGuest,
             saveKey,
