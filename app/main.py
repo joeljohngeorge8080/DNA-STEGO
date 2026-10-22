@@ -7,6 +7,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 from authlib.integrations.starlette_client import OAuth
 from app.pipeline.stego_pipeline import encode_message, decode_message, DEFAULT_FASTA_PATH
+from app.crypto.cipher_v2 import ALGORITHMS
+from app.decoder.dna_decoder import parse_stego_header
 from app.auth.auth import create_jwt_token, decode_jwt_token, UserInfo
 import shutil
 import urllib.parse
@@ -127,10 +129,18 @@ async def get_current_user(request: Request):
 async def encrypt_message_endpoint(
     message: str = Form(...),
     use_encryption: str = Form(default="true"),
+    algorithm: str = Form(default=""),
+    password: str = Form(default=""),
     fasta_file: UploadFile = File(default=None),
 ):
-    """Encode a message into a FASTA file."""
-    do_encrypt = use_encryption.lower() == "true"
+    """Encode a message into a FASTA file (v2 format)."""
+    # Legacy callers send use_encryption=false to mean "no encryption"
+    if not algorithm:
+        algorithm = "aes-256-gcm" if use_encryption.lower() == "true" else "none"
+    if algorithm not in ALGORITHMS:
+        raise HTTPException(status_code=400, detail=f"Unknown algorithm: {algorithm}")
+    if algorithm != "none" and not password:
+        raise HTTPException(status_code=400, detail="Password required for this algorithm")
     
     if fasta_file and fasta_file.filename:
         temp_path = f"storage/fasta_files/{fasta_file.filename}"
@@ -146,16 +156,21 @@ async def encrypt_message_endpoint(
             )
     
     try:
-        stego_file, key = encode_message(message, cover_path, use_encryption=do_encrypt)
+        stego_file, _ = encode_message(
+            message, cover_path, algorithm=algorithm, password=password or None
+        )
         logger.info(f"Encryption successful. Stego file: {stego_file}")
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
     except Exception as exc:
         logger.error(f"Encryption failed: {str(exc)}")
         raise HTTPException(status_code=500, detail=str(exc))
     
     return {
         "stego_file": stego_file,
-        "key": key.decode() if key else None,
-        "encrypted": do_encrypt,
+        "algorithm": algorithm,
+        "format": 2,
+        "encrypted": algorithm != "none",
     }
 
 
@@ -192,7 +207,10 @@ async def decrypt_message_endpoint(
     stego_file: UploadFile = File(...),
     key: str = Form(default=""),
 ):
-    """Decode a message from a stego FASTA file."""
+    """Decode a message from a stego FASTA file.
+
+    `key` is the password for v2 files, or the Fernet key for legacy files.
+    """
     temp_path = f"storage/fasta_files/{stego_file.filename}"
     with open(temp_path, "wb") as buf:
         shutil.copyfileobj(stego_file.file, buf)
@@ -205,4 +223,5 @@ async def decrypt_message_endpoint(
     except Exception as exc:
         raise HTTPException(status_code=400, detail=str(exc))
     
-    return {"message": message}
+    header = parse_stego_header(temp_path)
+    return {"message": message, "format": header["fmt"] if header else 1}
