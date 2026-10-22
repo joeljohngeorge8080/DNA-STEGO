@@ -1,8 +1,10 @@
 from app.preprocessing.rearrange import rearrange_text, restore_text
 from app.crypto.encryption import encrypt_data, decrypt_data, generate_key
 from app.dna.dna_encoder import bytes_to_binary, binary_to_dna
+from app.crypto.cipher_v2 import MAGIC, decrypt_v2, encrypt_v2
 from app.decoder.dna_decoder import (
     extract_stego_sequence,
+    parse_stego_header,
     dna_to_binary,
     binary_to_bytes,
     bytes_to_text,
@@ -17,20 +19,34 @@ DEFAULT_FASTA_PATH = "storage/fasta_files/default.fasta"
 # =========================
 
 
-def encode_message(text: str, original_fasta: str, use_encryption: bool = True):
+def encode_message(
+    text: str,
+    original_fasta: str,
+    use_encryption: bool = True,
+    algorithm: str = None,
+    password: str = None,
+):
     """
     Full encoding pipeline.
 
     Args:
         text:            The secret message to hide.
         original_fasta:  Path to the cover FASTA file.
-        use_encryption:  If True, encrypt with AES (Fernet) and return a key.
+        use_encryption:  Legacy mode. If True, encrypt with AES (Fernet) and return a key.
                          If False, skip encryption — anyone can decode this file.
+        algorithm:       If set, use the v2 format ("aes-256-gcm", "chacha20-poly1305"
+                         or "none"); use_encryption is ignored.
+        password:        Password for v2 encrypted algorithms.
 
     Returns:
         (stego_file_path, key_or_None)
-        key is bytes when use_encryption=True, None otherwise.
+        key is bytes for legacy encrypted files, None otherwise (v2 uses a password).
     """
+
+    if algorithm is not None:
+        frame = encrypt_v2(text, algorithm, password)
+        dna_sequence = binary_to_dna(bytes_to_binary(frame))
+        return inject_into_fasta(original_fasta, dna_sequence, algorithm=algorithm), None
 
     # Step 1: rearrange text
     rearranged = rearrange_text(text)
@@ -70,8 +86,8 @@ def decode_message(stego_fasta: str, key: bytes = b""):
 
     Args:
         stego_fasta: Path to the stego FASTA file.
-        key:         AES key bytes. Pass b"" (empty) if the file was encoded
-                     without encryption.
+        key:         Legacy files: Fernet key bytes (b"" if encoded without
+                     encryption). v2 files: the password, as bytes or str.
 
     Returns:
         The original plaintext message.
@@ -85,6 +101,13 @@ def decode_message(stego_fasta: str, key: bytes = b""):
 
     # Step 3: binary -> bytes
     raw_bytes = binary_to_bytes(binary)
+
+    # v2 files: header says fmt=2, or the payload itself starts with the v2 magic
+    # (legacy payloads are rearranged/Fernet, so they never start with it)
+    header = parse_stego_header(stego_fasta)
+    if (header and header["fmt"] == 2) or raw_bytes.startswith(MAGIC):
+        password = key.decode("utf-8") if isinstance(key, bytes) else key
+        return decrypt_v2(raw_bytes, password)
 
     # Step 4: decrypt only if a key was supplied
     if key:
@@ -113,3 +136,12 @@ if __name__ == "__main__":
 
         recovered = decode_message(stego_file, key if key else b"")
         print("Recovered:", recovered)
+
+    for algo in ["aes-256-gcm", "chacha20-poly1305", "none"]:
+        print(f"\n=== v2 algorithm={algo} ===")
+        pw = None if algo == "none" else "demo-password"
+        stego_file, _ = encode_message(
+            "JOEL", "storage/fasta_files/default.fasta", algorithm=algo, password=pw
+        )
+        print("Stego file:", stego_file)
+        print("Recovered:", decode_message(stego_file, (pw or "").encode()))
