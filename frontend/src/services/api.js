@@ -10,10 +10,11 @@ async function handleResponse(res) {
     return res.blob()
 }
 
-export async function encryptMessage(message, fastaFile, useEncryption = true) {
+export async function encryptMessage(message, fastaFile, { algorithm = 'aes-256-gcm', password = '' } = {}) {
     const body = new FormData()
     body.append('message', message)
-    body.append('use_encryption', useEncryption ? 'true' : 'false')
+    body.append('algorithm', algorithm)
+    if (password) body.append('password', password)
     if (fastaFile) body.append('fasta_file', fastaFile)
     const res = await fetch(`${BASE}/api/encrypt`, { method: 'POST', body })
     return handleResponse(res)
