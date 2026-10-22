@@ -2,20 +2,45 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
     Lock, Unlock, Download, Key, Dna, ChevronDown,
-    ShieldCheck, ShieldOff, FileText, Info, CheckCircle,
+    ShieldCheck, ShieldOff, FileText, Info,
 } from 'lucide-react'
 import Button from '../../components/ui/Button.jsx'
 import FileUpload from '../../components/ui/FileUpload.jsx'
 import TextArea from '../../components/ui/TextArea.jsx'
 import Input from '../../components/ui/Input.jsx'
 import ResultDisplay from '../../components/ui/ResultDisplay.jsx'
-import { useAuth } from '../../context/AuthContext.jsx'
 import {
     encryptMessage,
     downloadStegoFile,
     decryptMessage,
     triggerDownload,
 } from '../../services/api.js'
+
+const ALGORITHMS = [
+    {
+        id: 'aes-256-gcm',
+        icon: ShieldCheck,
+        title: 'AES-256-GCM',
+        desc: 'Industry-standard authenticated encryption',
+        color: 'accent',
+    },
+    {
+        id: 'chacha20-poly1305',
+        icon: Key,
+        title: 'ChaCha20-Poly1305',
+        desc: 'Fast authenticated cipher, great without AES hardware',
+        color: 'accent',
+    },
+    {
+        id: 'none',
+        icon: ShieldOff,
+        title: 'No Encryption',
+        desc: 'Anyone with the FASTA file can read the message',
+        color: 'blue',
+    },
+]
+
+const MIN_PASSWORD_LENGTH = 8
 
 const tabs = [
     { id: 'encrypt', label: 'Encrypt', icon: Lock },
@@ -93,18 +118,20 @@ export default function DnaStego() {
 /*  Encrypt Panel                                                              */
 /* ─────────────────────────────────────────────────────────────────────────── */
 function EncryptPanel() {
-    const { isAuthenticated, isGuest, saveKey, savedKey } = useAuth()
-
     const [message, setMessage] = useState('')
     const [fastaFile, setFastaFile] = useState(null)
     const [useDefaultFasta, setUseDefaultFasta] = useState(false)
-    const [useEncryption, setUseEncryption] = useState(true)
+    const [algorithm, setAlgorithm] = useState('aes-256-gcm')
+    const [password, setPassword] = useState('')
+    const [confirm, setConfirm] = useState('')
     const [loading, setLoading] = useState(false)
     const [result, setResult] = useState(null)
     const [error, setError] = useState(null)
 
     // Need a message + either a file OR the default-FASTA toggle
-    const canSubmit = message.trim().length > 0 && (fastaFile !== null || useDefaultFasta)
+    const needsPassword = algorithm !== 'none'
+    const passwordOk = !needsPassword || (password.length >= MIN_PASSWORD_LENGTH && password === confirm)
+    const canSubmit = message.trim().length > 0 && (fastaFile !== null || useDefaultFasta) && passwordOk
 
     async function handleEncrypt() {
         setLoading(true)
@@ -114,14 +141,9 @@ function EncryptPanel() {
             const data = await encryptMessage(
                 message,
                 useDefaultFasta ? null : fastaFile,
-                useEncryption,
+                { algorithm, password: needsPassword ? password : '' },
             )
             setResult(data)
-
-            // Save key into user session if logged in and encryption was used
-            if (data.key && isAuthenticated) {
-                saveKey(data.key)
-            }
         } catch (err) {
             setError(err.message)
         } finally {
@@ -152,41 +174,55 @@ function EncryptPanel() {
                 hint="Your message will be converted into a DNA sequence and embedded into the FASTA file"
             />
 
-            {/* ── Protection Mode Toggle ─────────────────────────────────── */}
+            {/* ── Encryption Algorithm ───────────────────────────────────── */}
             <div className="space-y-2">
                 <p className="text-xs font-mono text-cyber-muted uppercase tracking-widest">
-                    Protection Mode
+                    Encryption
                 </p>
-                <div className="grid grid-cols-2 gap-3">
-                    <OptionCard
-                        active={useEncryption}
-                        onClick={() => setUseEncryption(true)}
-                        icon={ShieldCheck}
-                        title="With AES Key"
-                        desc="The FASTA file can only be decoded using the generated key"
-                        color="accent"
-                    />
-                    <OptionCard
-                        active={!useEncryption}
-                        onClick={() => setUseEncryption(false)}
-                        icon={ShieldOff}
-                        title="Key-Free"
-                        desc="Anyone with the FASTA file can decode the message without a key"
-                        color="blue"
-                    />
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {ALGORITHMS.map(({ id, icon, title, desc, color }) => (
+                        <OptionCard
+                            key={id}
+                            active={algorithm === id}
+                            onClick={() => setAlgorithm(id)}
+                            icon={icon}
+                            title={title}
+                            desc={desc}
+                            color={color}
+                        />
+                    ))}
                 </div>
-                {useEncryption && (
-                    <InfoBanner color="accent">
-                        {isAuthenticated
-                            ? 'Your encryption key will be saved in this session.'
-                            : isGuest
-                                ? 'Guest session — your key will NOT be saved. Copy it manually.'
-                                : 'Log in to save your key automatically.'}
-                    </InfoBanner>
-                )}
-                {!useEncryption && (
+                {needsPassword ? (
+                    <div className="space-y-3">
+                        <Input
+                            label="Password"
+                            type="password"
+                            autoComplete="new-password"
+                            placeholder={`At least ${MIN_PASSWORD_LENGTH} characters`}
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                        />
+                        <Input
+                            label="Confirm Password"
+                            type="password"
+                            autoComplete="new-password"
+                            placeholder="Repeat the password"
+                            value={confirm}
+                            onChange={(e) => setConfirm(e.target.value)}
+                            error={confirm && password !== confirm ? 'Passwords do not match' : undefined}
+                            hint={
+                                password && password.length < MIN_PASSWORD_LENGTH
+                                    ? `Use at least ${MIN_PASSWORD_LENGTH} characters`
+                                    : undefined
+                            }
+                        />
+                        <InfoBanner color="accent">
+                            Remember this password — it is never stored and cannot be recovered.
+                        </InfoBanner>
+                    </div>
+                ) : (
                     <InfoBanner color="blue">
-                        No key is generated. Leave the Decrypt key field blank when decoding.
+                        No password is needed. Leave the Decrypt password field blank when decoding.
                     </InfoBanner>
                 )}
             </div>
@@ -239,14 +275,6 @@ function EncryptPanel() {
                 Generate Stego FASTA
             </Button>
 
-            {/* Saved key banner */}
-            {savedKey && isAuthenticated && result?.key && (
-                <InfoBanner color="accent">
-                    <CheckCircle size={13} className="inline mr-1.5" />
-                    Encryption key saved to your session.
-                </InfoBanner>
-            )}
-
             {/* Error */}
             {error && (
                 <ResultDisplay
@@ -262,23 +290,13 @@ function EncryptPanel() {
                     title="Encoding Successful"
                     type="success"
                     items={[
-                        ...(result.key
-                            ? [{
-                                label: 'Encryption Key',
-                                value: result.key,
-                                copyable: true,
-                                mono: true,
-                                hint: isGuest
-                                    ? '⚠ Guest session — save this key now, it will not be stored'
-                                    : isAuthenticated
-                                        ? '✓ Key saved to your session'
-                                        : undefined,
-                            }]
-                            : [{
-                                label: 'Protection Mode',
-                                value: 'Key-Free — no AES key required to decode',
-                                mono: false,
-                            }]),
+                        {
+                            label: 'Protection',
+                            value: result.encrypted
+                                ? `${result.algorithm} — password required to decode`
+                                : 'No encryption — no password required to decode',
+                            mono: false,
+                        },
                         {
                             label: 'Output File',
                             value: result.stego_file,
@@ -302,8 +320,6 @@ function EncryptPanel() {
 /*  Decrypt Panel                                                              */
 /* ─────────────────────────────────────────────────────────────────────────── */
 function DecryptPanel() {
-    const { savedKey, isAuthenticated } = useAuth()
-
     const [stegoFile, setStegoFile] = useState(null)
     const [key, setKey] = useState('')
     const [loading, setLoading] = useState(false)
@@ -312,11 +328,6 @@ function DecryptPanel() {
 
     // Only the file is required — key is optional
     const canSubmit = stegoFile !== null
-
-    // Auto-fill saved key when user is authenticated and has one
-    function handleUseSavedKey() {
-        if (savedKey) setKey(savedKey)
-    }
 
     async function handleDecrypt() {
         setLoading(true)
@@ -347,32 +358,24 @@ function DecryptPanel() {
             <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
                     <label className="text-xs font-mono text-cyber-muted uppercase tracking-widest">
-                        Decryption Key&nbsp;
+                        Password / Key&nbsp;
                         <span className="normal-case text-[10px] text-cyber-muted/60">(optional)</span>
                     </label>
-                    {isAuthenticated && savedKey && (
-                        <button
-                            onClick={handleUseSavedKey}
-                            className="text-[11px] text-cyber-accent hover:text-cyber-accent/80 font-mono transition-colors"
-                        >
-                            Use saved key ↗
-                        </button>
-                    )}
                 </div>
                 <Input
-                    placeholder="Paste AES key here — or leave blank for key-free files..."
+                    placeholder="Enter the password (or legacy key) — leave blank if not encrypted..."
                     value={key}
                     onChange={(e) => setKey(e.target.value)}
                     type="password"
                     hint={
                         key.trim()
-                            ? 'Key will be used for AES decryption'
-                            : 'No key entered — file must have been encoded key-free'
+                            ? 'Used as the password for new files, or as the key for legacy files'
+                            : 'Nothing entered — the file must have been encoded without encryption'
                     }
                 />
                 <InfoBanner color="blue">
                     <Info size={12} className="inline mr-1.5 flex-shrink-0" />
-                    If the file was encoded <strong>without</strong> an encryption key, leave this field blank.
+                    If the file was encoded <strong>without</strong> encryption, leave this field blank.
                 </InfoBanner>
             </div>
 
@@ -453,7 +456,7 @@ function InfoBanner({ children, color = 'blue' }) {
 function PipelineSteps() {
     const steps = [
         { label: 'Text', desc: 'Input message', color: 'text-cyber-muted' },
-        { label: 'Encrypt', desc: 'AES (optional)', color: 'text-cyber-blue' },
+        { label: 'Encrypt', desc: 'AES-GCM / ChaCha20', color: 'text-cyber-blue' },
         { label: 'Binary', desc: '→ 0s and 1s', color: 'text-cyber-muted' },
         { label: 'DNA', desc: 'G·C·A·T bases', color: 'text-cyber-accent' },
         { label: 'FASTA', desc: 'Stego file', color: 'text-cyber-accent' },
