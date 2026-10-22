@@ -1,0 +1,12 @@
+{
+  "legacy_encrypted": {
+    "file": "legacy_encrypted_stego.fasta",
+    "message": "Hello DNA 123",
+    "key": "5_lZOwFNBqB2LzzeM5jmimm4Fq7bskSRsqHmNMp2wCA="
+  },
+  "legacy_plain": {
+    "file": "legacy_plain_stego.fasta",
+    "message": "Hello DNA 123",
+    "key": ""
+  }
+}
