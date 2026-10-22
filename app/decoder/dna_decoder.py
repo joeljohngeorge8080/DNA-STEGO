@@ -34,6 +34,32 @@ def extract_stego_sequence(filepath: str) -> str:
     return dna_sequence
 
 
+def parse_stego_header(filepath: str):
+    """
+    Parse the '>stego_seq_' header of a stego FASTA file.
+
+    Returns a dict with `fmt` (1 = legacy, 2 = v2), `alg` (None for legacy),
+    `mode`, and `length` when present, or None if the file has no stego record.
+    """
+
+    with open(filepath, "r") as f:
+        for line in f:
+            if line.startswith(">stego_seq_"):
+                fields = {}
+                for token in line.strip().split(" | ")[1:]:
+                    if "=" in token:
+                        k, v = token.split("=", 1)
+                        fields[k.strip()] = v.strip()
+                length = fields.get("length")
+                return {
+                    "fmt": int(fields["fmt"]) if fields.get("fmt", "").isdigit() else 1,
+                    "alg": fields.get("alg"),
+                    "mode": fields.get("mode"),
+                    "length": int(length) if length and length.isdigit() else None,
+                }
+    return None
+
+
 def dna_to_binary(dna_sequence: str) -> str:
     """
     Convert DNA sequence back into binary string.

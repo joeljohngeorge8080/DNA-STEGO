@@ -11,22 +11,31 @@ def wrap_sequence(sequence: str, line_length: int = SEQUENCE_LINE_LENGTH) -> str
     )
 
 
-def generate_stego_header(sequence: str, use_encryption: bool = True) -> str:
+def generate_stego_header(
+    sequence: str, use_encryption: bool = True, algorithm: str = None
+) -> str:
     """
     Generate a biologically plausible FASTA header for the injected sequence.
 
     The header embeds metadata that the decoder uses to identify the payload.
     Format follows NCBI convention:  >stego_seq_<id> <desc> [key=<mode>]
+
+    When `algorithm` is given the header is tagged as format v2 (`fmt=2`,
+    `alg=<name>`); without it the legacy header is produced.
     """
     seq_id = random.randint(10000, 99999)
     length = len(sequence)
     ts = datetime.utcnow().strftime("%Y%m%d")
+    if algorithm is not None:
+        use_encryption = algorithm != "none"
     mode = "encrypted" if use_encryption else "plain"
 
     header = (
         f">stego_seq_{seq_id} DNA-Stego payload | "
         f"length={length} | date={ts} | mode={mode}"
     )
+    if algorithm is not None:
+        header += f" | fmt=2 | alg={algorithm}"
     return header
 
 
@@ -53,6 +62,7 @@ def inject_into_fasta(
     original_fasta: str,
     encoded_sequence: str,
     use_encryption: bool = True,
+    algorithm: str = None,
 ) -> str:
     """
     Append the encoded DNA sequence to an existing FASTA file.
@@ -64,7 +74,7 @@ def inject_into_fasta(
     """
     output_file = original_fasta.replace(".fasta", "_stego.fasta")
 
-    header = generate_stego_header(encoded_sequence, use_encryption)
+    header = generate_stego_header(encoded_sequence, use_encryption, algorithm)
     wrapped_sequence = wrap_sequence(encoded_sequence)
 
     with open(original_fasta, "r") as f:
